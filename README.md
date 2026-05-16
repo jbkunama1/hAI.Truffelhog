@@ -21,9 +21,9 @@
 
 ## ✨ Überblick
 
-**hAI.Truffelhog** ist ein kleines GitHub-Projekt, das TruffleHog als Docker-Container mit einer einfachen Flask-Weboberfläche bereitstellt. TruffleHog unterstützt das Scannen von Git-Repositories, Dateisystemen, Container-Images und weiteren Quellen nach potenziellen Secrets.[cite:1][cite:21]
+**hAI.Truffelhog** ist ein kleines GitHub-Projekt, das TruffleHog als Docker-Container mit einer einfachen Flask-Weboberfläche bereitstellt. TruffleHog unterstützt das Scannen von Git-Repositories, Dateisystemen, Container-Images und weiteren Quellen nach potenziellen Secrets.
 
-Die Lösung in diesem Repository fokussiert sich auf einen praxistauglichen lokalen Einsatz im Heimnetz oder Homelab: Container starten, Verzeichnisse mit Repos read-only mounten, Scans im Browser auslösen und JSON-Ergebnisse herunterladen.[cite:1][cite:13][cite:21]
+Die Lösung in diesem Repository fokussiert sich auf einen praxistauglichen lokalen Einsatz im Heimnetz oder Homelab: Container starten, Verzeichnisse mit Repos read-only mounten, Scans im Browser auslösen und JSON-Ergebnisse herunterladen.
 
 ---
 
@@ -65,7 +65,7 @@ hAI.Truffelhog/
 - Frei verfügbare IP `192.168.178.11`
 - Lokale Git-Repositories, z. B. unter `/srv/git`
 
-TruffleHog stellt ein offizielles Container-Image bereit und dokumentiert Docker-basierte Nutzung für Scans.[cite:13][cite:21]
+TruffleHog stellt ein offizielles Container-Image bereit und dokumentiert Docker-basierte Nutzung für Scans.
 
 ---
 
@@ -80,7 +80,7 @@ cd hAI.Truffelhog
 
 ### 2. Netzwerk prüfen
 
-Das Compose-Setup erwartet ein **externes** Docker-Netzwerk namens `highfishNetwork`.[cite:21]
+Das Compose-Setup erwartet ein **externes** Docker-Netzwerk namens `highfishNetwork`.
 
 Falls es noch nicht existiert, kannst du es beispielhaft so anlegen:
 
@@ -134,7 +134,7 @@ Im Webformular:
 - Modus: `Git`
 - Ziel: `https://github.com/user/repo`
 
-Die Anwendung ruft intern die TruffleHog-Subcommands `filesystem` oder `git` auf und speichert die Ausgabe als JSON-Datei. Das offizielle Projekt dokumentiert diese Scan-Modi und die Verwendung im Docker-Kontext.[cite:1][cite:21]
+Die Anwendung ruft intern die TruffleHog-Subcommands `filesystem` oder `git` auf und speichert die Ausgabe als JSON-Datei. Das offizielle Projekt dokumentiert diese Scan-Modi und die Verwendung im Docker-Kontext.
 
 ---
 
@@ -143,7 +143,7 @@ Die Anwendung ruft intern die TruffleHog-Subcommands `filesystem` oder `git` auf
 - Das Repo-Verzeichnis wird **read-only** in den Container gemountet.
 - Die Weboberfläche ist bewusst einfach gehalten und sollte nur im internen Netz betrieben werden.
 - Für produktiven Einsatz sind Reverse Proxy, Basic Auth und ggf. IP-Restriktionen sinnvoll.
-- Werden echte Secrets gefunden, sollten diese rotiert und nicht nur aus dem Repository entfernt werden, da Git-Historie betroffen sein kann.[cite:1]
+- Werden echte Secrets gefunden, sollten diese rotiert und nicht nur aus dem Repository entfernt werden, da Git-Historie betroffen sein kann.
 
 ---
 
@@ -161,7 +161,7 @@ docker run --rm \
   trufflesecurity/trufflehog git file:///repo
 ```
 
-Die offizielle Projektseite und das Docker-Image beschreiben diese Nutzungsart für Git-Scans.[cite:1][cite:13][cite:21]
+Die offizielle Projektseite und das Docker-Image beschreiben diese Nutzungsart für Git-Scans.
 
 ---
 
@@ -219,13 +219,13 @@ EXPOSE 5000
 CMD ["python", "app.py"]
 ```
 
-Das offizielle Repository stellt das Install-Script bereit; zusätzlich existiert ein offizielles Docker-Image für containerisierte Nutzung.[cite:1][cite:13]
+Das offizielle Repository stellt das Install-Script bereit; zusätzlich existiert ein offizielles Docker-Image für containerisierte Nutzung.
 
 ---
 
 ## 🧾 MIT Lizenz
 
-Dieses Repository enthält eine MIT-Lizenz und ist damit offen für private und angepasste Nutzung. Die MIT-Lizenz erlaubt Nutzung, Kopieren, Modifikation, Zusammenführung, Veröffentlichung und Weitergabe unter Beibehaltung des Lizenzhinweises.[cite:1]
+Dieses Repository enthält eine MIT-Lizenz und ist damit offen für private und angepasste Nutzung. Die MIT-Lizenz erlaubt Nutzung, Kopieren, Modifikation, Zusammenführung, Veröffentlichung und Weitergabe unter Beibehaltung des Lizenzhinweises.
 
 ---
 
@@ -241,4 +241,4 @@ Dieses Repository enthält eine MIT-Lizenz und ist damit offen für private und 
 
 ## 🤝 Hinweis
 
-Dieses Repository ist eine eigenständige Web-Verpackung um TruffleHog und kein offizielles Projekt von Truffle Security. TruffleHog selbst ist das zugrunde liegende Secret-Scanning-Tool.[cite:1][cite:21]
+Dieses Repository ist eine eigenständige Web-Verpackung um TruffleHog und kein offizielles Projekt von Truffle Security. TruffleHog selbst ist das zugrunde liegende Secret-Scanning-Tool.
