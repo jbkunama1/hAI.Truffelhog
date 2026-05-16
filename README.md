@@ -7,8 +7,8 @@
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-WebUI-000000?logo=flask&logoColor=white)
 ![TruffleHog](https://img.shields.io/badge/TruffleHog-Secret%20Scanning-orange)
-![LAN](https://img.shields.io/badge/LAN-192.168.178.11-blue)
-![Network](https://img.shields.io/badge/Network-highfishNetwork-8A2BE2)
+![LAN](https://img.shields.io/badge/LAN-ready-blue)
+![Network](https://img.shields.io/badge/Network-YourNetwork-8A2BE2)
 ![Status](https://img.shields.io/badge/Status-Ready%20to%20Hack-brightgreen)
 
 <img src="./assets/logo-Truffel.png" alt="hAI.Truffelhog Logo" width="220">
