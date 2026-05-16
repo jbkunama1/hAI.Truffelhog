@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 from datetime import datetime, timedelta
+
 from flask import (
     Flask,
     request,
@@ -10,8 +11,8 @@ from flask import (
     render_template_string,
     send_file,
     abort,
-    Markup,
 )
+from markupsafe import Markup
 
 app = Flask(__name__)
 
@@ -37,7 +38,7 @@ def load_saved_queries():
 
 def save_saved_queries(queries):
     try:
-        with open(QUERIES_FILE, "w", encoding="utf-utf-8") as f:
+        with open(QUERIES_FILE, "w", encoding="utf-8") as f:
             json.dump(queries, f, indent=2)
     except Exception:
         pass
@@ -608,7 +609,7 @@ def scan():
             with open(json_outfile, "w", encoding="utf-8") as f:
                 f.write(error_text)
             with open(md_outfile, "w", encoding="utf-8") as f:
-                f.write(f"# Fehler\\n\\n```text\\n{error_text}\\n```")
+                f.write(f"# Fehler\n\n```text\n{error_text}\n```")
 
     return redirect(url_for("index"))
 
@@ -668,3 +669,4 @@ def examples():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+    
