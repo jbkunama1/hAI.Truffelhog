@@ -35,7 +35,7 @@ Ziel: Aus dem Heimnetz oder Homelab bequem Secret-Scans starten, ohne TruffleHog
 - 🔎 Remote-Scan von Git-Repositories per URL (GitHub, GitLab, eigene Git-Server)
 - 🛢️ Optionale Erweiterung für Docker-/GHCR-Image-Scans
 - 💾 Persistente JSON-Ergebnisse im Volume
-- 🏠 Betrieb im LAN (z. B. 192.168.178.11 auf `highfishNetwork`)
+- 🏠 Betrieb im LAN (z. B. 127.0.0.1 auf `YourNetwork`)
 - 🎨 Eigenes Branding mit Logo und farbiger UI
 
 ---
@@ -62,8 +62,8 @@ hAI.Truffelhog/
 ## 🚀 Voraussetzungen
 
 - Docker Engine + Docker Compose Plugin
-- Externes Docker-Netzwerk `highfishNetwork`
-- Frei verfügbare IP `192.168.178.11` im Docker-Netz
+- Externes Docker-Netzwerk `YourNetwork`
+- Frei verfügbare IP `127.0.0.1` im Docker-Netz
 - Internetzugang für den Container (z. B. Docker-Bridge/NAT)
 - Optional:
   - GitHub-/GitLab-Personal-Access-Tokens als ENV-Variablen
@@ -82,7 +82,7 @@ cd hAI.Truffelhog
 
 ### 2. Docker-Netzwerk prüfen oder anlegen
 
-Das Compose-Setup erwartet ein **externes** Docker-Netzwerk `highfishNetwork` mit passendem Subnetz.
+Das Compose-Setup erwartet ein **externes** Docker-Netzwerk `YourNetwork` mit passendem Subnetz.
 
 Beispiel:
 
@@ -90,11 +90,11 @@ Beispiel:
 docker network create \
   --driver bridge \
   --subnet 192.168.178.0/24 \
-  highfishNetwork
+  YourNetwork
 ```
 
 > Achtung: Verwende ein Subnetz, das zu deiner bestehenden Docker- und Host-Konfiguration passt.  
-> Falls bereits ein `highfishNetwork` existiert, diesen Schritt überspringen.
+> Falls bereits ein `YourNetwork` existiert, diesen Schritt überspringen.
 
 ### 3. Optionale Umgebungsvariablen (.env)
 
@@ -121,7 +121,7 @@ docker compose up -d --build
 Danach erreichst du die Weboberfläche im LAN unter:
 
 ```text
-http://192.168.178.11:5000
+http://127.0.0.1:5000
 ```
 
 ---
@@ -130,7 +130,7 @@ http://192.168.178.11:5000
 
 ### GitHub-/GitLab-Repo scannen
 
-1. Im Browser `http://192.168.178.11:5000` aufrufen.
+1. Im Browser `http://127.0.0.1:5000` aufrufen.
 2. Formular ausfüllen:
    - Scan-Typ: `Git`
    - Ziel-URL:
@@ -166,8 +166,8 @@ services:
     container_name: trufflehog-web
     restart: unless-stopped
     networks:
-      highfishNetwork:
-        ipv4_address: 192.168.178.11
+      YourNetwork:
+        ipv4_address: 127.0.0.1
     volumes:
       - trufflehog-data:/app/data
     ports:
@@ -179,7 +179,7 @@ services:
       # GITLAB_TOKEN: "dein-token"
 
 networks:
-  highfishNetwork:
+  YourNetwork:
     external: true
 
 volumes:
