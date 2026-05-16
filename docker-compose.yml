@@ -6,8 +6,7 @@ services:
     container_name: trufflehog-web
     restart: unless-stopped
     networks:
-      highfishNetwork:
-        ipv4_address: 192.168.178.11
+      highfishNetwork
     volumes:
       - trufflehog-data:/app/data
     ports:
