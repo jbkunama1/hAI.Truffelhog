@@ -80,7 +80,7 @@ def render_markdown_report(json_text: str, meta: dict) -> str:
     Versucht sowohl JSON-Liste als auch JSON-Lines zu verstehen.
     """
     lines = []
-    lines.append(f"# TruffleHog Report")
+    lines.append("# TruffleHog Report")
     lines.append("")
     lines.append(f"- Target: `{meta.get('target', '-')}`")
     lines.append(f"- Mode: `{meta.get('mode', '-')}`")
@@ -573,7 +573,85 @@ def scan():
             "git",
             t,
             f"--results={results_arg}",
-            "--format=json",
+            "--json",
+        ]
+        if since_value:
+            cmd.append(f"--since={since_value}")
+
+        try:
+            completed = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                timeout=1800,
+            )
+            output = completed.stdout
+
+            # JSON speichern
+            with open(json_outfile, "w", encoding="utf-8") as f:
+                f.write(output)
+
+            # Markdown erzeugen
+            meta = {
+                "target": t,
+                "mode": mode,
+                "results": results_mode,
+                "since": since_raw,
+                "timestamp": timestamp,
+            }
+            md_text = render_markdown_report(output, meta)
+            with open(md_outfile, "w", encoding="utf-8") as f:
+                f.write(md_text)
+
+        except Exception as e:
+            error_text = str(e)
+            with open(json_outfile, "w", encoding="utf-8") as f:
+                f.write(error_text)
+            with open(md_outfile, "w", encoding="utf-8") as f:
+                f.write(f"# Fehler\n\n```text\n{error_text}\n```")
+
+    return redirect(url_for("index"))
+
+
+@app.route("/run_saved", methods=["POST"])
+def run_saved():
+    name = request.form.get("saved_name", "").strip()
+    if not name:
+        return redirect(url_for("index"))
+
+    queries = load_saved_queries()
+    q = next((x for x in queries if x.get("name") == name), None)
+    if not q:
+        return redirect(url_for("index"))
+
+    mode = q.get("mode", "multi")
+    targets = q.get("targets", [])
+    results_mode = q.get("results", "verified,unknown")
+    since_raw = q.get("since", "")
+
+    if not targets:
+        return redirect(url_for("index"))
+
+    if results_mode == "all":
+        results_arg = "verified,unknown,unverified"
+    else:
+        results_arg = results_mode
+
+    since_value = parse_since(since_raw)
+
+    for t in targets:
+        timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        safe_name = t.replace("://", "_").replace("/", "_").replace("@", "_")
+        json_outfile = os.path.join(DATA_DIR, f"{timestamp}_git_{safe_name}.json")
+        md_outfile = os.path.join(DATA_DIR, f"{timestamp}_git_{safe_name}.md")
+
+        cmd = [
+            "trufflehog",
+            "git",
+            t,
+            f"--results={results_arg}",
+            "--json",
         ]
         if since_value:
             cmd.append(f"--since={since_value}")
