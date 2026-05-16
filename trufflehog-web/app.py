@@ -13,6 +13,7 @@ from flask import (
     abort,
 )
 from markupsafe import Markup
+import markdown as md
 
 app = Flask(__name__)
 
@@ -66,7 +67,6 @@ def parse_since(value: str) -> str | None:
         except ValueError:
             return None
 
-    # sonst: direkt verwenden (du gibst selbst ein valides Format vor)
     return value
 
 
@@ -150,7 +150,7 @@ def render_markdown_report(json_text: str, meta: dict) -> str:
 
 
 # -----------------------------
-# HTML-Template (Mobile Ready, Single+Multi, Saved Queries)
+# HTML-Template (Mobile Ready, Single+Multi, Saved, Delete)
 # -----------------------------
 
 INDEX_TEMPLATE = """
@@ -170,6 +170,7 @@ INDEX_TEMPLATE = """
       --primary: #21d4c7;
       --accent: #ff5fa2;
       --line: #2f3d66;
+      --danger: #ff5f5f;
     }
     * { box-sizing: border-box; }
     body {
@@ -249,6 +250,15 @@ INDEX_TEMPLATE = """
       border: 0;
       margin-top: 10px;
     }
+    button.danger {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
     .hint {
       font-size: 0.8rem;
       color: var(--muted);
@@ -263,6 +273,7 @@ INDEX_TEMPLATE = """
       padding: 8px;
       border-bottom: 1px solid var(--line);
       font-size: 0.85rem;
+      vertical-align: middle;
     }
     a {
       color: var(--primary);
@@ -308,6 +319,7 @@ INDEX_TEMPLATE = """
       .grid { grid-template-columns: 1fr; }
       .hero { padding: 12px 14px; }
       h1 { font-size: 1.4rem; }
+      th:nth-child(3), td:nth-child(3) { display: none; } /* optional: Anzeige-Spalte auf sehr kleinen Screens ausblenden */
     }
   </style>
   <script>
@@ -328,6 +340,13 @@ INDEX_TEMPLATE = """
         tabSingle.classList.remove('active');
         tabMulti.classList.add('active');
       }
+    }
+    function confirmDelete(filename) {
+      if (confirm("Datei '" + filename + "' wirklich löschen?")) {
+        const form = document.getElementById('delete-form-' + btoa(filename));
+        if (form) form.submit();
+      }
+      return false;
     }
   </script>
 </head>
@@ -475,17 +494,29 @@ git@github.com:user/repo-3.git"
       <h2>Gespeicherte Ergebnisse</h2>
       {% if files %}
       <table>
-        <tr><th>Datei</th><th>Download</th><th>Anzeige</th></tr>
+        <tr>
+          <th>Datei</th>
+          <th>Download</th>
+          <th>Anzeige</th>
+          <th>Löschen</th>
+        </tr>
         {% for f in files %}
+        {% set fid = f | b64encode %}
         <tr>
           <td>{{ f }}</td>
           <td><a href="{{ url_for('download', filename=f) }}">⬇️ Download</a></td>
           <td>
-            {% if f.endswith(".json") %}
+            {% if f.endswith(".md") %}
             <a href="{{ url_for('view_report', filename=f) }}" target="_blank">📄 Anzeigen</a>
             {% else %}
             -
             {% endif %}
+          </td>
+          <td>
+            <form id="delete-form-{{ fid }}" method="post" action="{{ url_for('delete_file') }}" style="display:inline;">
+              <input type="hidden" name="filename" value="{{ f }}">
+              <button class="danger" type="button" onclick="confirmDelete('{{ f }}')">🗑 Löschen</button>
+            </form>
           </td>
         </tr>
         {% endfor %}
@@ -550,7 +581,6 @@ def scan():
         results_mode = request.form.get("results", "verified,unknown")
         since_raw = request.form.get("since", "")
         targets = [target] if target else []
-        query_name = None
 
     if not targets:
         return redirect(url_for("index"))
@@ -666,11 +696,9 @@ def run_saved():
             )
             output = completed.stdout
 
-            # JSON speichern
             with open(json_outfile, "w", encoding="utf-8") as f:
                 f.write(output)
 
-            # Markdown erzeugen
             meta = {
                 "target": t,
                 "mode": mode,
@@ -702,33 +730,67 @@ def download(filename):
     return send_file(safe_path, as_attachment=True)
 
 
+@app.route("/delete", methods=["POST"])
+def delete_file():
+    filename = request.form.get("filename", "").strip()
+    if not filename:
+        return redirect(url_for("index"))
+
+    safe_path = os.path.join(DATA_DIR, filename)
+    if not os.path.abspath(safe_path).startswith(os.path.abspath(DATA_DIR)):
+        abort(403)
+
+    if os.path.isfile(safe_path):
+        try:
+            os.remove(safe_path)
+        except OSError:
+            pass
+
+    return redirect(url_for("index"))
+
+
 @app.route("/view/<path:filename>")
 def view_report(filename):
     """
-    Zeigt die passende .md-Datei als HTML an.
-    Erwartung: filename ist ein JSON-Dateiname,
-    die MD-Datei hat denselben basename mit .md-Endung.
+    Zeigt eine .md-Datei als HTML an.
+    Erwartung: filename ist direkt eine MD-Datei oder ein JSON-Name
+    mit gleicher Basis.
     """
-    base_json = os.path.join(DATA_DIR, filename)
-    if not os.path.isfile(base_json):
-        base_md = os.path.join(DATA_DIR, filename)
+    base_path = os.path.join(DATA_DIR, filename)
+    if filename.endswith(".md") and os.path.isfile(base_path):
+        md_path = base_path
     else:
-        base_md = base_json.rsplit(".", 1)[0] + ".md"
+        if not os.path.isfile(base_path):
+            return "Report nicht gefunden", 404
+        md_path = base_path.rsplit(".", 1)[0] + ".md"
 
-    if not os.path.isfile(base_md):
+    if not os.path.isfile(md_path):
         return "Report nicht gefunden", 404
 
-    with open(base_md, "r", encoding="utf-8") as f:
+    with open(md_path, "r", encoding="utf-8") as f:
         md_content = f.read()
+
+    body_html = md.markdown(
+        md_content,
+        extensions=["fenced_code", "tables"]
+    )
 
     html = (
         "<html><head><meta charset='utf-8'>"
         "<title>TruffleHog Report</title>"
-        "<style>body{background:#0b1020;color:#ecf3ff;font-family:monospace;padding:16px;}"
-        "a{color:#21d4c7;}</style>"
-        "</head><body><pre style='white-space:pre-wrap;'>"
-        + Markup.escape(md_content)
-        + "</pre></body></html>"
+        "<style>"
+        "body{background:#0b1020;color:#ecf3ff;font-family:-apple-system,BlinkMacSystemFont,"
+        "'Segoe UI',Arial,sans-serif;padding:16px;line-height:1.5;}"
+        "h1,h2,h3{color:#ffffff;}"
+        "code{background:#11182d;padding:2px 4px;border-radius:4px;}"
+        "pre code{display:block;padding:10px;border-radius:6px;}"
+        "a{color:#21d4c7;text-decoration:none;}"
+        "a:hover{text-decoration:underline;}"
+        "hr{border:0;border-top:1px solid #2f3d66;margin:16px 0;}"
+        "</style>"
+        "</head><body>"
+        + body_html +
+        "</body></html>"
     )
     return html
 
