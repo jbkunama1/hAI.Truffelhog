@@ -11,7 +11,7 @@
 ![Network](https://img.shields.io/badge/Network-highfishNetwork-8A2BE2)
 ![Status](https://img.shields.io/badge/Status-Ready%20to%20Hack-brightgreen)
 
-<img src="./assets/logo.svg" alt="hAI.Truffelhog Logo" width="220">
+<img src="logo-Truffel.png" alt="hAI.Truffelhog Logo" width="220">
 
 **TruffleHog als Docker-Webservice mit einfacher Weboberfläche für lokale Repo-Scans im LAN**
 
