@@ -6,7 +6,7 @@ services:
     container_name: trufflehog-web
     restart: unless-stopped
     networks:
-      highfishNetwork
+      - highfishNetwork
     volumes:
       - trufflehog-data:/app/data
     ports:
