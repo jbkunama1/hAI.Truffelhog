@@ -14,6 +14,7 @@ from flask import (
 )
 from markupsafe import Markup
 import markdown as md
+import requests
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ QUERIES_FILE = os.path.join(DATA_DIR, "queries.json")
 
 
 # -----------------------------
-# Hilfsfunktionen für Saved Queries
+# Hilfsfunktionen Saved Queries
 # -----------------------------
 
 def load_saved_queries():
@@ -68,6 +69,51 @@ def parse_since(value: str) -> str | None:
             return None
 
     return value
+
+
+# -----------------------------
+# GitHub-Repo-Liste holen
+# -----------------------------
+
+def fetch_github_repos() -> list[str]:
+    """
+    Holt alle Repos des authentifizierten Users über die GitHub-API.
+    Nutzt das Env GITHUB_TOKEN. Gibt HTTPS-Clone-URLs zurück.
+    """
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        return []
+
+    repos = []
+    session = requests.Session()
+    session.headers.update({
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}",
+        "X-GitHub-Api-Version": "2022-11-28",
+    })
+
+    page = 1
+    while True:
+        resp = session.get(
+            "https://api.github.com/user/repos",
+            params={"per_page": 100, "page": page},
+            timeout=30,
+        )
+        if resp.status_code != 200:
+            break
+
+        data = resp.json()
+        if not data:
+            break
+
+        for r in data:
+            clone_url = r.get("clone_url")
+            if clone_url:
+                repos.append(clone_url)
+
+        page += 1
+
+    return repos
 
 
 # -----------------------------
@@ -150,7 +196,7 @@ def render_markdown_report(json_text: str, meta: dict) -> str:
 
 
 # -----------------------------
-# HTML-Template (Mobile Ready, Single+Multi, Saved, Delete)
+# HTML-Template (UI)
 # -----------------------------
 
 INDEX_TEMPLATE = """
@@ -319,7 +365,6 @@ INDEX_TEMPLATE = """
       .grid { grid-template-columns: 1fr; }
       .hero { padding: 12px 14px; }
       h1 { font-size: 1.4rem; }
-      th:nth-child(3), td:nth-child(3) { display: none; } /* optional: Anzeige-Spalte auf sehr kleinen Screens ausblenden */
     }
   </style>
   <script>
@@ -461,16 +506,16 @@ git@github.com:user/repo-3.git"
       </div>
 
       <div class="card">
-        <h2>Hinweise</h2>
+        <h2>Hinweise & GitHub</h2>
         <p>
           hAI.Truffelhog läuft als Docker-Service in deinem LAN und nutzt
           <code>trufflehog git &lt;url&gt;</code>, um Remote-Repos zu scannen.
         </p>
         <ul>
-          <li>🔒 Setze Tokens/SSH-Keys nur per ENV/Secrets.</li>
-          <li>📦 Ergebnisse als JSON und Markdown im Volume <code>trufflehog-data</code>.</li>
-          <li>⏱️ <code>--since</code> hilft, nur neue Commits zu scannen.</li>
-          <li>📚 Weitere Beispiele unter <code>examples.md</code>.</li>
+          <li>🔒 Tokens/SSH-Keys als ENV/Secrets setzen.</li>
+          <li>📦 Ergebnisse als JSON & Markdown im Volume <code>trufflehog-data</code>.</li>
+          <li>⏱️ <code>--since</code> für inkrementelle Scans.</li>
+          <li>📚 Beispiele in <code>examples.md</code>.</li>
         </ul>
 
         <h3>Gespeicherte Queries</h3>
@@ -487,12 +532,26 @@ git@github.com:user/repo-3.git"
         {% else %}
         <p class="hint">Noch keine gespeicherten Queries vorhanden.</p>
         {% endif %}
+
+        <form method="post" action="/sync_github_repos" style="margin-top:12px;">
+          <button class="primary" type="submit">
+            🔄 GitHub-Repoliste als Query speichern
+          </button>
+          <div class="hint">
+            Nutzt <code>GITHUB_TOKEN</code>, legt alle Repos des Users als Saved Query <code>github-all-repos</code> an.
+          </div>
+        </form>
       </div>
     </section>
 
     <section class="card" style="margin-top:16px;">
       <h2>Gespeicherte Ergebnisse</h2>
       {% if files %}
+      <form method="post" action="/delete_all" style="margin-bottom:10px;">
+        <button class="danger" type="submit" onclick="return confirm('Wirklich ALLE Ergebnisdateien löschen?');">
+          🗑 Alle Ergebnisse löschen
+        </button>
+      </form>
       <table>
         <tr>
           <th>Datei</th>
@@ -515,7 +574,7 @@ git@github.com:user/repo-3.git"
           <td>
             <form id="delete-form-{{ fid }}" method="post" action="{{ url_for('delete_file') }}" style="display:inline;">
               <input type="hidden" name="filename" value="{{ f }}">
-              <button class="danger" type="button" onclick="confirmDelete('{{ f }}')">🗑 Löschen</button>
+              <button class="danger" type="button" onclick="confirmDelete('{{ f }}')">🗑</button>
             </form>
           </td>
         </tr>
@@ -562,7 +621,6 @@ def scan():
             if line.strip()
         ]
 
-        # Query speichern
         if query_name and targets:
             queries = load_saved_queries()
             queries = [q for q in queries if q.get("name") != query_name]
@@ -576,7 +634,7 @@ def scan():
             })
             save_saved_queries(queries)
 
-    else:  # single
+    else:
         target = request.form.get("target", "").strip()
         results_mode = request.form.get("results", "verified,unknown")
         since_raw = request.form.get("since", "")
@@ -618,11 +676,9 @@ def scan():
             )
             output = completed.stdout
 
-            # JSON speichern
             with open(json_outfile, "w", encoding="utf-8") as f:
                 f.write(output)
 
-            # Markdown erzeugen
             meta = {
                 "target": t,
                 "mode": mode,
@@ -749,6 +805,20 @@ def delete_file():
     return redirect(url_for("index"))
 
 
+@app.route("/delete_all", methods=["POST"])
+def delete_all():
+    for name in os.listdir(DATA_DIR):
+        # Wenn du Saved Queries behalten willst, hier ausnehmen:
+        # if name == "queries.json": continue
+        path = os.path.join(DATA_DIR, name)
+        if os.path.isfile(path):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+    return redirect(url_for("index"))
+
+
 @app.route("/view/<path:filename>")
 def view_report(filename):
     """
@@ -793,6 +863,35 @@ def view_report(filename):
         "</body></html>"
     )
     return html
+
+
+@app.route("/sync_github_repos", methods=["POST"])
+def sync_github_repos():
+    """
+    Holt die Repo-Liste des authentifizierten GitHub-Users und speichert sie
+    als Saved Query 'github-all-repos'.
+    """
+    repos = fetch_github_repos()
+    if not repos:
+        return redirect(url_for("index"))
+
+    query_name = "github-all-repos"
+    results_mode = "verified,unknown"
+    since_raw = ""  # kannst du nach Bedarf z. B. auf "last_hours=2" setzen
+
+    queries = load_saved_queries()
+    queries = [q for q in queries if q.get("name") != query_name]
+    queries.append({
+        "name": query_name,
+        "mode": "multi",
+        "targets": repos,
+        "results": results_mode,
+        "since": since_raw,
+        "created_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
+    })
+    save_saved_queries(queries)
+
+    return redirect(url_for("index"))
 
 
 @app.route("/examples")
