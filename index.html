@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hAI.Truffelhog – Übersicht</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; line-height: 1.5; }
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    h1, h2 { line-height: 1.2; }
+    .hero { text-align: center; margin-bottom: 2rem; }
+    .hero img { max-width: 200px; height: auto; }
+    .box { border: 1px solid #8884; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+    ul { padding-left: 1.2rem; }
+    code { background: #8882; padding: .1rem .35rem; border-radius: .3rem; }
+    a { text-underline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <img src="./assets/logo-Truffel.png" alt="hAI.Truffelhog Logo">
+      <h1>🐗 hAI.Truffelhog</h1>
+      <p><strong>TruffleHog als Docker-Webservice mit einfacher Weboberfläche für Remote-Scans im LAN.</strong></p>
+    </section>
+
+    <section class="box">
+      <h2>✨ Überblick</h2>
+      <p>
+        hAI.Truffelhog kombiniert TruffleHog mit einer schlanken Flask-Weboberfläche.
+        So kannst du Secret-Scans für Git-Repositories zentral im Container starten,
+        ohne TruffleHog lokal installieren zu müssen.
+      </p>
+    </section>
+
+    <section class="box">
+      <h2>🧠 Features</h2>
+      <ul>
+        <li>Docker-Setup mit <code>docker compose</code></li>
+        <li>Einfache Weboberfläche mit Flask</li>
+        <li>Remote-Scan von GitHub/GitLab/anderen Git-Servern per URL</li>
+        <li>Persistente JSON-Ergebnisse im Volume</li>
+        <li>LAN-tauglicher Betrieb</li>
+      </ul>
+    </section>
+
+    <section class="box">
+      <h2>🚀 Schnellstart</h2>
+      <ol>
+        <li>Repository klonen</li>
+        <li>Optional <code>.env</code> aus <code>.env.example</code> anlegen</li>
+        <li><code>docker compose up -d --build</code> ausführen</li>
+        <li>Weboberfläche öffnen: <code>http://127.0.0.1:5000</code></li>
+      </ol>
+    </section>
+
+    <section class="box">
+      <h2>🔗 Mehr Details</h2>
+      <p>
+        Die vollständige Dokumentation findest du in der
+        <a href="./README.md">README.md</a> und zusätzliche Beispiele in
+        <a href="./examples.md">examples.md</a>.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
