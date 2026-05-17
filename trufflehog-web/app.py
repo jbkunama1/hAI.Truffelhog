@@ -360,12 +360,6 @@ INDEX_TEMPLATE = """
     .examples-link span {
       font-size: 1rem;
     }
-    @media (max-width: 800px) {
-      .wrap { padding: 12px 10px 24px; }
-      .grid { grid-template-columns: 1fr; }
-      .hero { padding: 12px 14px; }
-      h1 { font-size: 1.4rem; }
-    }
   </style>
   <script>
     function setMode(mode) {
@@ -386,10 +380,9 @@ INDEX_TEMPLATE = """
         tabMulti.classList.add('active');
       }
     }
-    function confirmDelete(filename) {
+    function confirmDelete(form, filename) {
       if (confirm("Datei '" + filename + "' wirklich löschen?")) {
-        const form = document.getElementById('delete-form-' + btoa(filename));
-        if (form) form.submit();
+        form.submit();
       }
       return false;
     }
@@ -560,7 +553,6 @@ git@github.com:user/repo-3.git"
           <th>Löschen</th>
         </tr>
         {% for f in files %}
-        {% set fid = f | b64encode %}
         <tr>
           <td>{{ f }}</td>
           <td><a href="{{ url_for('download', filename=f) }}">⬇️ Download</a></td>
@@ -572,9 +564,9 @@ git@github.com:user/repo-3.git"
             {% endif %}
           </td>
           <td>
-            <form id="delete-form-{{ fid }}" method="post" action="{{ url_for('delete_file') }}" style="display:inline;">
+            <form method="post" action="{{ url_for('delete_file') }}" style="display:inline;">
               <input type="hidden" name="filename" value="{{ f }}">
-              <button class="danger" type="button" onclick="confirmDelete('{{ f }}')">🗑</button>
+              <button class="danger" type="button" onclick="return confirmDelete(this.form, '{{ f }}')">🗑</button>
             </form>
           </td>
         </tr>
@@ -877,7 +869,7 @@ def sync_github_repos():
 
     query_name = "github-all-repos"
     results_mode = "verified,unknown"
-    since_raw = ""  # kannst du nach Bedarf z. B. auf "last_hours=2" setzen
+    since_raw = ""  # ggf. z. B. "last_hours=2" setzen
 
     queries = load_saved_queries()
     queries = [q for q in queries if q.get("name") != query_name]
@@ -908,4 +900,3 @@ def examples():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-    
