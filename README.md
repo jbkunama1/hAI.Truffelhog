@@ -9,8 +9,8 @@
 [![TruffleHog](https://img.shields.io/badge/TruffleHog-Secret%20Scanning-orange)](https://github.com/jbkunama1/hAI.Truffelhog)
 [![LAN](https://img.shields.io/badge/LAN-ready-blue)](https://github.com/jbkunama1/hAI.Truffelhog)
 [![Network](https://img.shields.io/badge/Network-YourNetwork-8A2BE2)](https://github.com/jbkunama1/hAI.Truffelhog)
-![Status](https://img.shields.io/badge/Status-
-[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/highfish)Ready%20to%20Hack-brightgreen)
+[![Status](https://img.shields.io/badge/Status-Ready%20to%20Hack-brightgreen)](https://github.com/jbkunama1/hAI.Truffelhog)
+[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/highfish)
 
 <img src="./assets/logo-Truffel.png" alt="hAI.Truffelhog Logo" width="220">
 
