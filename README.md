@@ -2,13 +2,13 @@
 
 <div align="center">
 
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-WebUI-000000?logo=flask&logoColor=white)
-![TruffleHog](https://img.shields.io/badge/TruffleHog-Secret%20Scanning-orange)
-![LAN](https://img.shields.io/badge/LAN-ready-blue)
-![Network](https://img.shields.io/badge/Network-YourNetwork-8A2BE2)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/jbkunama1/hAI.Truffelhog)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://github.com/jbkunama1/hAI.Truffelhog)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://github.com/jbkunama1/hAI.Truffelhog)
+[![Flask](https://img.shields.io/badge/Flask-WebUI-000000?logo=flask&logoColor=white)](https://github.com/jbkunama1/hAI.Truffelhog)
+[![TruffleHog](https://img.shields.io/badge/TruffleHog-Secret%20Scanning-orange)](https://github.com/jbkunama1/hAI.Truffelhog)
+[![LAN](https://img.shields.io/badge/LAN-ready-blue)](https://github.com/jbkunama1/hAI.Truffelhog)
+[![Network](https://img.shields.io/badge/Network-YourNetwork-8A2BE2)](https://github.com/jbkunama1/hAI.Truffelhog)
 ![Status](https://img.shields.io/badge/Status-
 [![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/highfish)Ready%20to%20Hack-brightgreen)
 
