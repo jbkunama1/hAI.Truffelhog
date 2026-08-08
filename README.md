@@ -10,7 +10,7 @@
 [![LAN](https://img.shields.io/badge/LAN-ready-blue)](https://github.com/jbkunama1/hAI.Truffelhog)
 [![Network](https://img.shields.io/badge/Network-YourNetwork-8A2BE2)](https://github.com/jbkunama1/hAI.Truffelhog)
 [![Status](https://img.shields.io/badge/Status-Ready%20to%20Hack-brightgreen)](https://github.com/jbkunama1/hAI.Truffelhog)
-[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://www.buymeacoffee.com/highfish)
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/highfish)
 
 <img src="./assets/logo-Truffel.png" alt="hAI.Truffelhog Logo" width="220">
 
